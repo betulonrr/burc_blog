@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zodya — Burçların Gizemi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    /*  RESET & BASE */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #050812;
+      --bg2:      #0b1022;
+      --bg3:      #111830;
+      --gold:     #c9a84c;
+      --gold2:    #f0d080;
+      --silver:   #a8b8d8;
+      --purple:   #7c5cbf;
+      --indigo:   #4b56a8;
+      --text:     #d8e4f8;
+      --muted:    #6a7a9a;
+      --border:   rgba(201,168,76,.18);
+      --glow:     0 0 40px rgba(201,168,76,.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /*  CUSTOM CURSOR  */
+    #cursor {
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s, opacity .2s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(201,168,76,.5);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .18s ease, width .3s, height .3s, border-color .3s;
+    }
+
+    /*  STAR CANVAS  */
+    #stars-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /*  NAV */
+    nav {
+      position: fixed; top: 0; width: 100%;
+      z-index: 100;
+      padding: 20px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(5,8,18,.95) 0%, transparent 100%);
+      backdrop-filter: blur(2px);
+    }
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: .15em;
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(201,168,76,.5);
+      text-decoration: none;
+    }
+    .logo span { color: var(--silver); font-weight: 400; }
+    nav ul { list-style: none; display: flex; gap: 36px; }
+    nav ul a {
+      font-family: 'Cinzel', serif;
+      font-size: .72rem;
+      letter-spacing: .18em;
+      color: var(--silver);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color .3s;
+      position: relative;
+    }
+    nav ul a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 1px; background: var(--gold);
+      transform: scaleX(0); transition: transform .3s;
+    }
+    nav ul a:hover { color: var(--gold); }
+    nav ul a:hover::after { transform: scaleX(1); }
+
+    /*  HERO  */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 0 20px;
+      overflow: hidden;
+    }
+    .hero-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: .68rem;
+      letter-spacing: .35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp .8s .3s forwards;
+    }
+    .hero h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3rem, 9vw, 8rem);
+      font-weight: 900;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 80px rgba(201,168,76,.3);
+      opacity: 0;
+      animation: fadeUp .9s .5s forwards;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+      display: block;
+      font-weight: 400;
+      font-size: .55em;
+      letter-spacing: .06em;
+      margin-top: 8px;
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--silver);
+      max-width: 520px;
+      line-height: 1.8;
+      margin: 32px 0 48px;
+      font-style: italic;
+      opacity: 0;
+      animation: fadeUp .9s .7s forwards;
+    }
+    .hero-cta {
+      display: flex; gap: 16px;
+      opacity: 0;
+      animation: fadeUp .9s .9s forwards;
+    }
+    .btn {
+      font-family: 'Cinzel', serif;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 2px;
+      transition: all .3s;
+      cursor: none;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #050812;
+      border: 1px solid var(--gold);
+    }
+    .btn-gold:hover {
+      background: var(--gold2);
+      box-shadow: 0 0 40px rgba(201,168,76,.5);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--silver);
+      border: 1px solid rgba(168,184,216,.3);
+    }
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* Zodiac wheel decoration */
+    .hero-wheel {
+      position: absolute;
+      width: min(700px, 90vw); height: min(700px, 90vw);
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.08);
+      animation: spin 120s linear infinite;
+      pointer-events: none;
+    }
+    .hero-wheel::before {
+      content: '';
+      position: absolute; inset: 20px;
+      border-radius: 50%;
+      border: 1px solid rgba(168,184,216,.06);
+    }
+    .hero-wheel::after {
+      content: '';
+      position: absolute; inset: 60px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.05);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /*  SECTION COMMON */
+    section {
+      position: relative; z-index: 1;
+      padding: 120px 60px;
+    }
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .section-label::before, .section-label::after {
+      content: '';
+      flex: 1; max-width: 60px;
+      height: 1px; background: var(--gold);
+      opacity: .4;
+    }
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--muted);
+      font-style: italic;
+      max-width: 500px;
+    }
+    .section-header { text-align: center; margin-bottom: 72px; }
+    .section-header .section-label { justify-content: center; }
+    .section-header .section-desc { margin: 0 auto; }
+
+    /*  DIVIDER  */
+    .divider {
+      width: 1px; height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      margin: 0 auto;
+      opacity: .4;
+    }
+
+    /*  ZODIAC GRID  */
+    #burclar { background: var(--bg2); }
+    .zodiac-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .zodiac-card {
+      background: var(--bg2);
+      padding: 36px 24px;
+      text-align: center;
+      cursor: none;
+      transition: background .3s, transform .3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .zodiac-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(201,168,76,.07) 0%, transparent 70%);
+      opacity: 0; transition: opacity .4s;
+    }
+    .zodiac-card:hover { background: var(--bg3); }
+    .zodiac-card:hover::before { opacity: 1; }
+    .zodiac-card:hover .zodiac-symbol { transform: scale(1.15) rotate(-5deg); color: var(--gold); }
+    .zodiac-symbol {
+      font-size: 2.8rem;
+      display: block;
+      margin-bottom: 12px;
+      transition: transform .4s, color .3s;
+      color: var(--silver);
+    }
+    .zodiac-name {
+      font-family: 'Cinzel', serif;
+      font-size: .85rem;
+      letter-spacing: .12em;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .zodiac-dates {
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .zodiac-element {
+      display: inline-block;
+      margin-top: 12px;
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .2em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+    .elem-ates  { background: rgba(220,80,60,.15);  color: #e88070; border: 1px solid rgba(220,80,60,.2); }
+    .elem-toprak{ background: rgba(80,160,80,.15);  color: #80c080; border: 1px solid rgba(80,160,80,.2); }
+    .elem-hava  { background: rgba(80,140,220,.15); color: #80b0e0; border: 1px solid rgba(80,140,220,.2); }
+    .elem-su    { background: rgba(60,120,200,.15); color: #70a8e8; border: 1px solid rgba(60,120,200,.2); }
+
+    /* DAILY HOROSCOPE  */
+    #gunluk { background: var(--bg); }
+    .daily-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .daily-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 48px;
+    }
+    .daily-btn {
+      font-family: 'Cinzel', serif;
+      font-size: .62rem;
+      letter-spacing: .15em;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: none;
+      border-radius: 2px;
+      transition: all .25s;
+      text-transform: uppercase;
+    }
+    .daily-btn:hover, .daily-btn.active {
+      background: rgba(201,168,76,.1);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .daily-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .daily-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .daily-card-header {
+      display: flex; align-items: center; gap: 28px;
+      margin-bottom: 36px;
+    }
+    .daily-symbol-big {
+      font-size: 5rem;
+      color: var(--gold);
+      opacity: .6;
+      flex-shrink: 0;
+    }
+    .daily-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: #fff;
+    }
+    .daily-date {
+      font-size: .85rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 4px;
+    }
+    .daily-text {
+      font-size: 1.15rem;
+      line-height: 2;
+      color: var(--text);
+      margin-bottom: 36px;
+      font-style: italic;
+    }
+    .daily-meters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .meter {
+      text-align: center;
+    }
+    .meter-label {
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .meter-bar {
+      height: 3px;
+      background: rgba(255,255,255,.08);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--gold), var(--gold2));
+      border-radius: 2px;
+      transition: width 1s ease;
+    }
+    .meter-val {
+      font-family: 'Cinzel', serif;
+      font-size: .75rem;
+      color: var(--gold);
+    }
+
+    /*  COMPATIBILITY  */
+    #uyum { background: var(--bg2); }
+    .compat-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .compat-selectors {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .compat-selectors select {
+      flex: 1;
+      font-family: 'Cinzel', serif;
+      font-size: .8rem;
+      letter-spacing: .1em;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 16px 20px;
+      appearance: none;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .3s;
+    }
+    .compat-selectors select:focus { border-color: var(--gold); }
+    .compat-sep {
+      font-size: 2rem;
+      color: var(--gold);
+      opacity: .6;
+      flex-shrink: 0;
+    }
+    .compat-result {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 48px;
+      text-align: center;
+      display: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .compat-result.visible { display: block; animation: fadeUp .5s forwards; }
+    .compat-result::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .compat-score-ring {
+      width: 140px; height: 140px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+    .compat-score-ring svg { transform: rotate(-90deg); }
+    .compat-score-ring .score-text {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--gold);
+      transform: none;
+    }
+    .compat-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .compat-desc {
+      font-style: italic;
+      color: var(--silver);
+      line-height: 1.9;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .compat-btn {
+      font-family: 'Cinzel', serif;
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      background: var(--gold);
+      color: #050812;
+      border: none;
+      padding: 14px 40px;
+      cursor: none;
+      transition: all .3s;
+      display: block;
+      width: 100%;
+      margin-top: 24px;
+    }
+    .compat-btn:hover { background: var(--gold2); box-shadow: 0 0 30px rgba(201,168,76,.4); }
+
+    /*  RISING SIGN  */
+    #yukselen { background: var(--bg); }
+    .rising-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .25em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      font-family: 'Crimson Pro', serif;
+      font-size: 1rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color .3s;
+      appearance: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+    .rising-result {
+      margin-top: 36px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 40px;
+      text-align: center;
+      display: none;
+      position: relative;
+    }
+    .rising-result::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .rising-result.visible { display: block; animation: fadeUp .5s forwards; }
+    .rising-symbol-big { font-size: 4rem; color: var(--gold); margin-bottom: 12px; }
+    .rising-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .rising-desc {
+      font-style: italic;
+      color: var(--silver);
+      line-height: 1.9;
+    }
+
+    /*  FOOTER  */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 60px;
+      text-align: center;
+      background: var(--bg);
+    }
+    .footer-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .footer-tagline {
+      font-style: italic;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+    .footer-links { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+    .footer-links a {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .3s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-copy {
+      font-size: .8rem;
+      color: rgba(106,122,154,.5);
+    }
+
+    /*  SCROLL REVEAL  */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .8s, transform .8s;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /*  RESPONSIVE  */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      nav ul { display: none; }
+      section { padding: 80px 24px; }
+      .daily-card { padding: 32px 24px; }
+      .daily-meters { grid-template-columns: 1fr; }
+      .compat-selectors { flex-direction: column; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { padding: 40px 24px; }
+    }
+
+    /*  MODAL  */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5,8,18,.9);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      max-width: 640px;
+      width: 100%;
+      padding: 56px;
+      position: relative;
+      animation: fadeUp .4s forwards;
+    }
+    .modal::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .modal-close {
+      position: absolute; top: 20px; right: 24px;
+      background: none; border: none;
+      color: var(--muted); font-size: 1.4rem;
+      cursor: none; transition: color .3s;
+    }
+    .modal-close:hover { color: var(--gold); }
+    .modal-symbol { font-size: 4rem; color: var(--gold); margin-bottom: 12px; }
+    .modal-sign {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .modal-dates { color: var(--muted); font-style: italic; margin-bottom: 28px; }
+    .modal-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: .65rem;
+      letter-spacing: .25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .modal-text { color: var(--silver); line-height: 1.9; margin-bottom: 24px; font-style: italic; }
+    .modal-traits { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .trait-tag {
+      font-family: 'Cinzel', serif;
+      font-size: .6rem;
+      letter-spacing: .12em;
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      color: var(--silver);
+      border-radius: 20px;
+    }
+    .trait-tag.positive { border-color: rgba(80,200,120,.3); color: #80d0a0; }
+    .trait-tag.negative { border-color: rgba(200,80,80,.3); color: #e08080; }
+
+    /*  PARTICLE GLOW  */
+    .glow-orb {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(100px);
+      opacity: .06;
+    }
+    .orb1 { background: var(--gold); top: -200px; left: -100px; }
+    .orb2 { background: var(--purple); bottom: -200px; right: -100px; }
+  </style>
+</head>
+<body>
+
+<!-- Glowing orbs -->
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Stars -->
+<canvas id="stars-canvas"></canvas>
+
+<!--  NAV  -->
+<nav>
+  <a class="logo" href="#">Zod<span>ya</span></a>
+  <ul>
+    <li><a href="#burclar">Burçlar</a></li>
+    <li><a href="#gunluk">Günlük</a></li>
+    <li><a href="#uyum">Uyum</a></li>
+    <li><a href="#yukselen">Yükselen</a></li>
+  </ul>
+</nav>
+
+<!--  HERO  -->
+<section class="hero">
+  <div class="hero-wheel"></div>
+  <p class="hero-eyebrow">✦ Yıldızların Rehberliğinde ✦</p>
+  <h1>
+    ZODYA
+    <em>Burçların Gizemi</em>
+  </h1>
+  <p class="hero-sub">Gezegenler konuşur, yıldızlar rehberlik eder. Doğum haritandan evrenin sana söylediklerini keşfet.</p>
+  <div class="hero-cta">
+    <a href="#burclar" class="btn btn-gold">Burçları Keşfet</a>
+    <a href="#gunluk" class="btn btn-outline">Günlük Yorum</a>
+  </div>
+</section>
+
+<!--  BURÇLAR  -->
+<section id="burclar">
+  <div class="section-header reveal">
+    <p class="section-label">On İki Burç</p>
+    <h2 class="section-title">Burcunu Keşfet</h2>
+    <p class="section-desc">Her burç, evrenin farklı bir yüzünü taşır. Sana ait olanı bul.</p>
+  </div>
+  <div class="zodiac-grid reveal" id="zodiac-grid">
+    <!-- JS ile doldurulacak -->
+  </div>
+</section>
+
+<!--  GÜNLÜK  -->
+<section id="gunluk">
+  <div class="section-header reveal">
+    <p class="section-label">Günlük Rehber</p>
+    <h2 class="section-title">Bugün Seni Neler Bekliyor?</h2>
+    <p class="section-desc">Gezegenler bugün senin için ne söylüyor?</p>
+  </div>
+  <div class="daily-container reveal">
+    <div class="daily-selector" id="daily-selector">
+      <!-- JS ile doldurulacak -->
+    </div>
+    <div class="daily-card" id="daily-card">
+      <!-- JS ile doldurulacak -->
+    </div>
+  </div>
+</section>
+
+<!--  UYUM  -->
+<section id="uyum">
+  <div class="section-header reveal">
+    <p class="section-label">Burç Uyumu</p>
+    <h2 class="section-title">İkiniz Ne Kadar Uyumlusunuz?</h2>
+    <p class="section-desc">Aşk, arkadaşlık ya da iş — yıldızlar uyumu açıklar.</p>
+  </div>
+  <div class="compat-container reveal">
+    <div class="compat-selectors">
+      <select id="compat1">
+        <option value="">— Burç Seç —</option>
+      </select>
+      <div class="compat-sep">✦</div>
+      <select id="compat2">
+        <option value="">— Burç Seç —</option>
+      </select>
+    </div>
+    <button class="compat-btn" onclick="calcCompat()">Uyumu Hesapla</button>
+    <div class="compat-result" id="compat-result">
+      <div class="compat-score-ring">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/>
+          <circle id="compat-ring" cx="70" cy="70" r="60" fill="none"
+            stroke="url(#g)" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="376" stroke-dashoffset="376" style="transition:stroke-dashoffset 1.2s ease"/>
+          <defs>
+            <linearGradient id="g" x1="0%" y1="0%" x2="100%">
+              <stop offset="0%" stop-color="#c9a84c"/>
+              <stop offset="100%" stop-color="#f0d080"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="score-text" id="compat-score-text">0%</div>
+      </div>
+      <p class="compat-title" id="compat-title"></p>
+      <p class="compat-desc" id="compat-desc"></p>
+    </div>
+  </div>
+</section>
+
+<!--  YÜKSELEN  -->
+<section id="yukselen">
+  <div class="section-header reveal">
+    <p class="section-label">Yükselen Burç</p>
+    <h2 class="section-title">Yükselen Burcunu Keşfet</h2>
+    <p class="section-desc">Doğum saatin, yerleşim yerin… Yükselen burcun dış dünyaya nasıl göründüğünü anlatır.</p>
+  </div>
+  <div class="rising-form reveal">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Doğum Günü</label>
+        <input type="number" id="r-day" placeholder="15" min="1" max="31"/>
+      </div>
+      <div class="form-group">
+        <label>Doğum Ayı</label>
+        <select id="r-month">
+          <option value="">Ay</option>
+          <option value="0">Ocak</option><option value="1">Şubat</option>
+          <option value="2">Mart</option><option value="3">Nisan</option>
+          <option value="4">Mayıs</option><option value="5">Haziran</option>
+          <option value="6">Temmuz</option><option value="7">Ağustos</option>
+          <option value="8">Eylül</option><option value="9">Ekim</option>
+          <option value="10">Kasım</option><option value="11">Aralık</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Doğum Yılı</label>
+        <input type="number" id="r-year" placeholder="1995" min="1900" max="2025"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Doğum Saati</label>
+        <input type="number" id="r-hour" placeholder="14" min="0" max="23"/>
+      </div>
+      <div class="form-group">
+        <label>Doğum Dakikası</label>
+        <input type="number" id="r-min" placeholder="30" min="0" max="59"/>
+      </div>
+      <div class="form-group">
+        <label>Saat Dilimi (UTC±)</label>
+        <input type="number" id="r-tz" placeholder="+3" min="-12" max="14"/>
+      </div>
+    </div>
+    <button class="compat-btn" onclick="calcRising()">Yükselen Burcumu Hesapla</button>
+    <div class="rising-result" id="rising-result">
+      <div class="rising-symbol-big" id="rising-symbol"></div>
+      <div class="rising-name" id="rising-name"></div>
+      <p class="rising-desc" id="rising-desc"></p>
+    </div>
+  </div>
+</section>
+
+<!--  FOOTER  -->
+<footer>
+  <div class="footer-logo">ZODYA</div>
+  <p class="footer-tagline">Yıldızların altında, gizemin içinde.</p>
+  <div class="footer-links">
+    <a href="#burclar">Burçlar</a>
+    <a href="#gunluk">Günlük Yorum</a>
+    <a href="#uyum">Uyum Hesaplayıcı</a>
+    <a href="#yukselen">Yükselen Burç</a>
+  </div>
+  <p class="footer-copy">© 2026 Zodya — Burçların Gizemi.</p>
+</footer>
+
+<!--  MODAL  -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-symbol" id="m-symbol"></div>
+    <div class="modal-sign" id="m-sign"></div>
+    <div class="modal-dates" id="m-dates"></div>
+
+    <p class="modal-section-title">Hakkında</p>
+    <p class="modal-text" id="m-desc"></p>
+
+    <p class="modal-section-title">Güçlü Özellikler</p>
+    <div class="modal-traits" id="m-positive"></div>
+
+    <p class="modal-section-title">Geliştirilmesi Gerekenler</p>
+    <div class="modal-traits" id="m-negative"></div>
+
+    <p class="modal-section-title">Uyumlu Burçlar</p>
+    <div class="modal-traits" id="m-compat"></div>
+  </div>
+</div>
+
+<script>
+/*  DATA  */
+const signs = [
+  { name:'Koç',        symbol:'♈', dates:'21 Mar – 19 Nis', elem:'Ateş', elemKey:'ates',
+    desc:'Koç, zodiakın öncüsü, cesaret ve tutkuyla dolu ateşli bir ruhtur. Doğuştan lider olan Koçlar, hayatın her alanında ilk olmayı sever.',
+    pos:['Cesur','Kararlı','Enerjik','Özgüvenli','Tutkulu'],
+    neg:['Sabırsız','Dürtüsel','İnatçı','Bencil'],
+    compat:['Aslan','Yay','İkizler','Kova'],
+    ruling:'Mars', modality:'Öncü' },
+  { name:'Boğa',       symbol:'♉', dates:'20 Nis – 20 May', elem:'Toprak', elemKey:'toprak',
+    desc:'Boğa, güzelliğin ve konforun efendisidir. Venüs\'ün yönetiminde, duyusal zevklere düşkün ve güvenilirliğiyle öne çıkar.',
+    pos:['Güvenilir','Sabırlı','Pratik','İstikrarlı','Sadık'],
+    neg:['İnatçı','Maddeci','Tembel','Değişime dirençli'],
+    compat:['Başak','Oğlak','Yengeç','Balık'],
+    ruling:'Venüs', modality:'Sabit' },
+  { name:'İkizler',    symbol:'♊', dates:'21 May – 20 Haz', elem:'Hava', elemKey:'hava',
+    desc:'İkizler, zekanın ve merakın burcu. Merkür\'ün çocukları olan İkizler, her konuya duyduğu derin merak ve iletişim yetenekleriyle öne çıkar.',
+    pos:['Zeki','Uyumlu','Meraklı','Esprili','İletişimci'],
+    neg:['Değişken','Yüzeysel','Tutarsız','Endişeli'],
+    compat:['Terazi','Kova','Koç','Aslan'],
+    ruling:'Merkür', modality:'Değişken' },
+  { name:'Yengeç',     symbol:'♋', dates:'21 Haz – 22 Tem', elem:'Su', elemKey:'su',
+    desc:'Yengeç, Ay\'ın yönetiminde hassas ve koruyucu bir ruhtur. Aile ve evcilliğe bağlılığı, derin sezgileri ve güçlü duyguları ile tanınır.',
+    pos:['Hassas','Koruyucu','Sadık','Sezgisel','Şefkatli'],
+    neg:['Aşırı duygusal','Kıskançlık','İçine kapanık','Değişken'],
+    compat:['Akrep','Balık','Boğa','Başak'],
+    ruling:'Ay', modality:'Öncü' },
+  { name:'Aslan',      symbol:'♌', dates:'23 Tem – 22 Ağu', elem:'Ateş', elemKey:'ates',
+    desc:'Aslan, Güneş\'in çocuğu; karizması, yaratıcılığı ve liderlik ruhuyla her ortamda parlar. Sahneyi seven, kalpleri fetheden bir burç.',
+    pos:['Karizmatik','Yaratıcı','Cömert','Sadık','Cesur'],
+    neg:['Kibirli','Dikkat ihtiyacı','Dominant','İnatçı'],
+    compat:['Koç','Yay','İkizler','Terazi'],
+    ruling:'Güneş', modality:'Sabit' },
+  { name:'Başak',      symbol:'♍', dates:'23 Ağu – 22 Eyl', elem:'Toprak', elemKey:'toprak',
+    desc:'Başak, analitik zekanın ve mükemmeliyetçiliğin temsilcisidir. Merkür\'ün yönetiminde, detaylara olan ilgisi ve pratik zekasıyla öne çıkar.',
+    pos:['Analitik','Güvenilir','Dikkatli','Pratik','Yardımsever'],
+    neg:['Aşırı eleştirici','Endişeli','Katı','Mükemmeliyetçi'],
+    compat:['Boğa','Oğlak','Yengeç','Akrep'],
+    ruling:'Merkür', modality:'Değişken' },
+  { name:'Terazi',     symbol:'♎', dates:'23 Eyl – 22 Eki', elem:'Hava', elemKey:'hava',
+    desc:'Terazi, adalet ve dengenin burcu. Venüs\'ün yönetiminde güzelliğe, uyuma ve ilişkilere büyük önem verir. Diplomatik ruhu ile barış sağlayıcıdır.',
+    pos:['Diplomatik','Adil','Karizmatik','Dengeli','Sosyal'],
+    neg:['Kararsız','Yüzeysel','Çatışmadan kaçan','Bağımlı'],
+    compat:['İkizler','Kova','Aslan','Yay'],
+    ruling:'Venüs', modality:'Öncü' },
+  { name:'Akrep',      symbol:'♏', dates:'23 Eki – 21 Kas', elem:'Su', elemKey:'su',
+    desc:'Akrep, gizemli ve yoğun bir ruhtur. Pluton\'un yönetiminde derin dönüşümlere, tutkulu bağlara ve keskin sezgilerine güvenerek yaşar.',
+    pos:['Tutkulu','Güçlü','Kararlı','Sadık','Sezgisel'],
+    neg:['İntikamcı','Kıskanç','Gizli saklı','Obsesif'],
+    compat:['Yengeç','Balık','Başak','Oğlak'],
+    ruling:'Pluton/Mars', modality:'Sabit' },
+  { name:'Yay',        symbol:'♐', dates:'22 Kas – 21 Ara', elem:'Ateş', elemKey:'ates',
+    desc:'Yay, özgürlüğün ve keşfin burcu. Jüpiter\'in yönetiminde, felsefi zihni ve sınırsız merakıyla ufukları genişletmeyi sever.',
+    pos:['İyimser','Özgür ruhlu','Dürüst','Maceracı','Bilge'],
+    neg:['Sorumsuz','Sabırsız','Kaba','Taahhütsüz'],
+    compat:['Koç','Aslan','Terazi','Kova'],
+    ruling:'Jüpiter', modality:'Değişken' },
+  { name:'Oğlak',      symbol:'♑', dates:'22 Ara – 19 Oca', elem:'Toprak', elemKey:'toprak',
+    desc:'Oğlak, hırs ve disiplinin simgesi. Satürn\'ün çocuğu olan Oğlak, azmi ve pratik zekasıyla hedeflerine ulaşmayı bilir.',
+    pos:['Disiplinli','Sorumlu','Azimli','Pratik','Sadık'],
+    neg:['Katı','Soğuk','İş dışında mesafeli','Kötümser'],
+    compat:['Boğa','Başak','Akrep','Balık'],
+    ruling:'Satürn', modality:'Öncü' },
+  { name:'Kova',       symbol:'♒', dates:'20 Oca – 18 Şub', elem:'Hava', elemKey:'hava',
+    desc:'Kova, yenilikçiliğin ve özgünlüğün burcu. Uranüs\'ün yönetiminde, ilerici fikirleri ve insani değerlere bağlılığıyla çağının önüne geçer.',
+    pos:['Yenilikçi','Bağımsız','İnsancıl','Özgün','Dürüst'],
+    neg:['Duygusal mesafe','Asi','Öngörülemez','Katı fikirli'],
+    compat:['İkizler','Terazi','Koç','Yay'],
+    ruling:'Uranüs/Satürn', modality:'Sabit' },
+  { name:'Balık',      symbol:'♓', dates:'19 Şub – 20 Mar', elem:'Su', elemKey:'su',
+    desc:'Balık, hayal gücünün ve ruhsallığın burcu. Neptün\'ün yönetiminde, derin empati ve sanatsal ruhuyla evreni hisseder.',
+    pos:['Empatik','Yaratıcı','Sezgisel','Şefkatli','Ruhsal'],
+    neg:['Kaçışcı','Sınır koymaz','Aşırı hassas','Kararsız'],
+    compat:['Yengeç','Akrep','Boğa','Oğlak'],
+    ruling:'Neptün/Jüpiter', modality:'Değişken' }
+];
+
+const dailyHoroscopes = {
+  'Koç':     'Bugün Mars enerjisi seni harekete geçiriyor. Uzun süredir ertelediğin projeyi başlatmak için mükemmel bir gün. Finansal konularda aceleci kararlardan kaçın; öte yandan aşk hayatında beklenmedik bir gelişme kapıda.',
+  'Boğa':    'Venüs\'ün nazlı ışığı altında bugün huzur ve güzellik ön planda. Sevdiklerinle vakit geçirmek ruhunu besleyecek. İş ortamında sabırlı davran; acele kararlar almak yerine iyice düşün.',
+  'İkizler': 'Merkür\'ün destekleyici konumu sayesinde iletişim kanalların açık. Önemli görüşmeler ve yazışmalar için ideal bir gün. Sosyal ortamlarda parlıyor, yeni bağlantılar kuruyorsun.',
+  'Yengeç':  'Ay\'ın sezgisel enerjisi duygularını derinleştiriyor. Ev ve aile konularında güzel gelişmeler mümkün. İçgüdülerine güven; bir yakının sana ihtiyacı olabilir.',
+  'Aslan':   'Güneş enerjin yüksek, karizman dorukta. Yaratıcı projelerde ilerleme için harika bir gün. Çevrendekiler dikkatini çekiyor; cömertliğin seni daha da sevdiriyor.',
+  'Başak':   'Merkür\'ün analitik etkisi altında detaylara olan dikkatın paha biçilmez. Sağlık konularında küçük adımlar atabilirsin. İş yerinde titiz çalışman takdir görüyor.',
+  'Terazi':  'Venüs ilişkilerini besliyor. Partnerinle ya da önemli biriyle derinlikli bir sohbet çok şeyi değiştirebilir. Estetik projeler ve sanatsal uğraşlar seni besliyor.',
+  'Akrep':   'Pluton\'un güçlü etkisi dönüşümü destekliyor. Eski alışkanlıklardan vazgeçmek için doğru an. Gizlenen bir gerçek gün yüzüne çıkabilir; hazırlıklı ol.',
+  'Yay':     'Jüpiter\'in iyimser enerjisi seni taşıyor. Eğitim, seyahat ve yeni fikirler için mükemmel bir gün. Ufkunu genişlet; uzak diyarlardaki haberler ilgini çekebilir.',
+  'Oğlak':  'Satürn\'ün disiplinli etkisi altında kariyerine odaklanıyorsun. Uzun vadeli hedefler için adım atmak için ideal zaman. Finans konularında akıllıca planlama yapabilirsin.',
+  'Kova':    'Uranüs\'ün özgürleştirici enerjisi yaratıcılığını tetikliyor. Alışılmışın dışına çıkmak için güzel bir gün. Teknoloji ve inovasyon alanlarında sürpriz fırsatlar seni bekliyor.',
+  'Balık':   'Neptün sezgilerini güçlendiriyor. Meditasyon ve sanatsal uğraşlar için ideal bir gün. Duygusal sınırlarına dikkat et; başkalarının enerjisine aşırı kapılmamaya çalış.'
+};
+
+const dailyMeters = {
+  'Koç':     { ask:90, para:60, saglik:75 },
+  'Boğa':    { ask:80, para:70, saglik:85 },
+  'İkizler': { ask:75, para:65, saglik:70 },
+  'Yengeç':  { ask:85, para:55, saglik:80 },
+  'Aslan':   { ask:95, para:75, saglik:90 },
+  'Başak':   { ask:65, para:80, saglik:95 },
+  'Terazi':  { ask:90, para:70, saglik:75 },
+  'Akrep':   { ask:70, para:85, saglik:65 },
+  'Yay':     { ask:80, para:60, saglik:85 },
+  'Oğlak':  { ask:60, para:90, saglik:70 },
+  'Kova':    { ask:75, para:65, saglik:80 },
+  'Balık':   { ask:85, para:55, saglik:75 }
+};
+
+/*  COMPAT DATA  */
+const compatData = {
+  'ates-ates':   { score:75, title:'Yıldırım Aşkı', desc:'İki ateş burcu bir araya geldiğinde kıvılcımlar kaçınılmaz. Tutkulu ve dinamik bir ilişki, ancak egolar çatışabilir.' },
+  'ates-toprak': { score:55, title:'Zıtların Çekimi', desc:'Ateş\'in yoğun enerjisi toprak burcunu zorlayabilir. Sabır ve anlayış köprüyü inşa eder.' },
+  'ates-hava':   { score:88, title:'Rüzgar Alevleri Körükler', desc:'Hava, ateşe ilham verir! Bu kombinasyon enerjik, yaratıcı ve oldukça uyumlu bir çift yaratır.' },
+  'ates-su':     { score:45, title:'Buhar & Güç', desc:'Ateş ve su güçlü ama zorlu bir kombinasyon. Duygusal farklılıklar empati gerektiriyor.' },
+  'toprak-toprak':{ score:82, title:'Sağlam Temel', desc:'İki toprak burcu birlikte istikrarlı, güvenilir ve uzun soluklu bir ilişki kurabilir.' },
+  'toprak-hava': { score:50, title:'Farklı Ritimler', desc:'Toprak pratikliği ile havanın özgürlük sevgisi zaman zaman çatışabilir ama denge bulunabilir.' },
+  'toprak-su':   { score:85, title:'Bereketli Toprak', desc:'Su toprağı besler! Bu iki unsur harika bir uyum içinde birbirini tamamlar.' },
+  'hava-hava':   { score:78, title:'Fikirler Dans Eder', desc:'Entelektüel bağ son derece güçlü. Yalnızca pratik zemine bazen ihtiyaç duyulabilir.' },
+  'hava-su':     { score:62, title:'Duygusal Denge', desc:'Havanın mantığı suyun duygusallığıyla buluştuğunda derin bir anlayış doğabilir.' },
+  'su-su':       { score:90, title:'Okyanus Derinliği', desc:'İki su burcu arasındaki duygusal bağ son derece derin ve köklüdür. Sezgisel uyum mükemmel.' },
+};
+
+function getCompatScore(s1, s2) {
+  const e1 = signs.find(s => s.name === s1)?.elemKey;
+  const e2 = signs.find(s => s.name === s2)?.elemKey;
+  if (!e1 || !e2) return null;
+  const key = [e1,e2].sort().join('-');
+  return compatData[key] || { score:65, title:'Gizem Dolu Bağ', desc:'Yıldızlar aranızdaki bağın derinliğini henüz açıklamıyor. Keşfetmeye devam edin.' };
+}
+
+/*  BUILD ZODIAC GRID  */
+function buildGrid() {
+  const grid = document.getElementById('zodiac-grid');
+  const elemClass = { ates:'elem-ates', toprak:'elem-toprak', hava:'elem-hava', su:'elem-su' };
+  grid.innerHTML = signs.map(s => `
+    <div class="zodiac-card" onclick="openModal('${s.name}')">
+      <span class="zodiac-symbol">${s.symbol}</span>
+      <div class="zodiac-name">${s.name}</div>
+      <div class="zodiac-dates">${s.dates}</div>
+      <span class="zodiac-element ${elemClass[s.elemKey]}">${s.elem}</span>
+    </div>
+  `).join('');
+}
+
+/*  MODAL  */
+function openModal(name) {
+  const s = signs.find(x => x.name === name);
+  if (!s) return;
+  document.getElementById('m-symbol').textContent = s.symbol;
+  document.getElementById('m-sign').textContent = s.name;
+  document.getElementById('m-dates').textContent = s.dates + ' · ' + s.elem + ' · ' + s.modality + ' · ' + s.ruling;
+  document.getElementById('m-desc').textContent = s.desc;
+  document.getElementById('m-positive').innerHTML = s.pos.map(t => `<span class="trait-tag positive">${t}</span>`).join('');
+  document.getElementById('m-negative').innerHTML = s.neg.map(t => `<span class="trait-tag negative">${t}</span>`).join('');
+  document.getElementById('m-compat').innerHTML = s.compat.map(t => `<span class="trait-tag">${t}</span>`).join('');
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+/*  BUILD DAILY SELECTOR  */
+function buildDailySelector() {
+  const sel = document.getElementById('daily-selector');
+  sel.innerHTML = signs.map((s, i) => `
+    <button class="daily-btn${i===0?' active':''}" onclick="showDaily('${s.name}', this)">${s.symbol} ${s.name}</button>
+  `).join('');
+  showDaily(signs[0].name, sel.querySelector('.active'));
+}
+
+function showDaily(name, btn) {
+  document.querySelectorAll('.daily-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const s = signs.find(x => x.name === name);
+  const m = dailyMeters[name];
+  const today = new Date().toLocaleDateString('tr-TR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('daily-card').innerHTML = `
+    <div class="daily-card-header">
+      <div class="daily-symbol-big">${s.symbol}</div>
+      <div>
+        <div class="daily-name">${s.name}</div>
+        <div class="daily-date">${today}</div>
+      </div>
+    </div>
+    <p class="daily-text">${dailyHoroscopes[name]}</p>
+    <div class="daily-meters">
+      <div class="meter">
+        <div class="meter-label">Aşk</div>
+        <div class="meter-bar"><div class="meter-fill" style="width:0" data-val="${m.ask}"></div></div>
+        <div class="meter-val">${m.ask}%</div>
+      </div>
+      <div class="meter">
+        <div class="meter-label">Para</div>
+        <div class="meter-bar"><div class="meter-fill" style="width:0" data-val="${m.para}"></div></div>
+        <div class="meter-val">${m.para}%</div>
+      </div>
+      <div class="meter">
+        <div class="meter-label">Sağlık</div>
+        <div class="meter-bar"><div class="meter-fill" style="width:0" data-val="${m.saglik}"></div></div>
+        <div class="meter-val">${m.saglik}%</div>
+      </div>
+    </div>
+  `;
+  setTimeout(() => {
+    document.querySelectorAll('.meter-fill').forEach(f => {
+      f.style.width = f.dataset.val + '%';
+    });
+  }, 80);
+}
+
+/*  BUILD COMPAT SELECTS  */
+function buildCompatSelects() {
+  const opts = signs.map(s => `<option value="${s.name}">${s.symbol} ${s.name}</option>`).join('');
+  document.getElementById('compat1').innerHTML = '<option value="">— İlk Burç —</option>' + opts;
+  document.getElementById('compat2').innerHTML = '<option value="">— İkinci Burç —</option>' + opts;
+}
+
+function calcCompat() {
+  const s1 = document.getElementById('compat1').value;
+  const s2 = document.getElementById('compat2').value;
+  if (!s1 || !s2) { alert('Lütfen iki burç seçin.'); return; }
+  const data = getCompatScore(s1, s2);
+  const result = document.getElementById('compat-result');
+  result.classList.remove('visible');
+  setTimeout(() => {
+    document.getElementById('compat-title').textContent = `${s1} & ${s2} — ${data.title}`;
+    document.getElementById('compat-desc').textContent = data.desc;
+    document.getElementById('compat-score-text').textContent = data.score + '%';
+    result.classList.add('visible');
+    const circ = 2 * Math.PI * 60;
+    const offset = circ - (data.score / 100) * circ;
+    setTimeout(() => {
+      document.getElementById('compat-ring').style.strokeDashoffset = offset;
+    }, 100);
+    let cur = 0;
+    const ticker = setInterval(() => {
+      cur = Math.min(cur + 2, data.score);
+      document.getElementById('compat-score-text').textContent = cur + '%';
+      if (cur >= data.score) clearInterval(ticker);
+    }, 20);
+  }, 100);
+}
+
+/*  RISING SIGN CALC  */
+function calcRising() {
+  const day  = parseInt(document.getElementById('r-day').value)  || 1;
+  const mon  = parseInt(document.getElementById('r-month').value);
+  const year = parseInt(document.getElementById('r-year').value) || 1990;
+  const hour = parseInt(document.getElementById('r-hour').value) || 0;
+  const min  = parseInt(document.getElementById('r-min').value)  || 0;
+  const tz   = parseFloat(document.getElementById('r-tz').value) || 3;
+
+  // Simplified approximation
+  const utcHour = hour - tz + min / 60;
+  const dayOfYear = Math.floor((new Date(year, mon, day) - new Date(year, 0, 0)) / 86400000);
+  const siderealTime = (6.697375 + 0.0657098242 * dayOfYear + utcHour * 1.00273791) % 24;
+  const ascDeg = ((siderealTime * 15) % 360 + 360) % 360;
+  const signIdx = Math.floor(ascDeg / 30) % 12;
+
+  const rising = signs[signIdx];
+  const risingDescs = {
+    'Koç':    'Dış dünyanın gözünde cesur ve enerjik görünürsün. İlk izlenim bırakma konusunda rakipsizsin.',
+    'Boğa':   'Sakin, güvenilir ve zarif bir dış görünüm. İnsanlar sana güvenme eğiliminde.',
+    'İkizler':'Neşeli, meraklı ve iletişim konusunda güçlü bir ilk izlenim yaratırsın.',
+    'Yengeç': 'Şefkatli ve sıcak görünümün insanları hemen sana çeker. Koruyucu bir aura yayarsın.',
+    'Aslan':  'Karizman ve özgüvenin odanın ışığı olmanı sağlar. Dikkat çekmek için çaba harcamazsın.',
+    'Başak':  'Analitik ve düzenli görünümün güveni hemen inşa eder. Titizliğin hemen fark edilir.',
+    'Terazi': 'Nazik, estetik ve diplomatik bir ilk izlenim. Herkesin seveceği türden bir enerji yayarsın.',
+    'Akrep':  'Gizemli ve yoğun bir aura. İnsanlar seni hemen merak eder ve etkileyici bulur.',
+    'Yay':    'Özgür ruhlu, iyimser ve maceraperest görünümün insanları sana çeker.',
+    'Oğlak': 'Profesyonel, ciddi ve güvenilir görünümün saygı uyandırır. Olgun bir enerji yayarsın.',
+    'Kova':   'Farklı, özgün ve ilgi çekici bir aura. İnsanlar seni hemen ilginç bulur.',
+    'Balık':  'Rüyamsı, şefkatli ve empatik bir dış görünüm. Seni tanımak istedikleri hissettirirsin.'
+  };
+
+  const result = document.getElementById('rising-result');
+  document.getElementById('rising-symbol').textContent = rising.symbol;
+  document.getElementById('rising-name').textContent = rising.name + ' Yükselen';
+  document.getElementById('rising-desc').textContent = risingDescs[rising.name];
+  result.classList.remove('visible');
+  setTimeout(() => result.classList.add('visible'), 80);
+}
+
+/*  STARS  */
+function initStars() {
+  const c = document.getElementById('stars-canvas');
+  const ctx = c.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    stars = Array.from({ length: 220 }, () => ({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      r: Math.random() * 1.2 + .2,
+      a: Math.random(),
+      speed: Math.random() * .004 + .001,
+      phase: Math.random() * Math.PI * 2
+    }));
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, c.width, c.height);
+    stars.forEach(s => {
+      const alpha = s.a * (.5 + .5 * Math.sin(t * s.speed + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(draw);
+}
+
+/*  CURSOR  */
+function initCursor() {
+  const dot  = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+    rx += (e.clientX - rx) * .12;
+    ry += (e.clientY - ry) * .12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+  });
+  setInterval(() => {
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+  }, 16);
+  document.querySelectorAll('a,button,.zodiac-card,.daily-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.style.width='56px'; ring.style.height='56px'; ring.style.borderColor='rgba(201,168,76,.8)'; });
+    el.addEventListener('mouseleave', () => { ring.style.width='36px'; ring.style.height='36px'; ring.style.borderColor='rgba(201,168,76,.5)'; });
+  });
+}
+
+/* SCROLL REVEAL */
+function initReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: .12 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+/*  INIT  */
+buildGrid();
+buildDailySelector();
+buildCompatSelects();
+initStars();
+initCursor();
+initReveal();
+</script>
+</body>
+</html>
