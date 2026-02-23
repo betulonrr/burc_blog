@@ -1,10 +1,8 @@
 # Zodya — Burçların Gizemi
 
 Zodya, astroloji bilgilerini modern web teknolojileri ve AI analitiği ile harmanlayan bir astroloji platformudur. Diğer astroloji bloglarından esinlenerek, AI tarafından optimize edilmiş içerik sunan ve uçtan uca geliştirilmiş bir veritabanlı projedir.
-
-##  Canlı Link
-[![Siteyi Gör](https://betulonrr.github.io/burc_blog/)
-
+Site linkine ulaşabilirsiniz 
+https://betulonrr.github.io/burc_blog/
 ##  Özellikler
 
 - **Burç Kartları:** 12 burç için element bazlı renk kodlaması, hover efektleri ve detay modallarına yer verildi.
@@ -16,7 +14,7 @@ Zodya, astroloji bilgilerini modern web teknolojileri ve AI analitiği ile harma
 
 ##  Teknolojiler & Mimari
 
-**Frontend** HTML5, CSS3 (BEM Metodolojisi), Vanilla JavaScript 
+**Frontend** HTML5, CSS3 , Vanilla JavaScript 
 **Backend**  Node.js, Express.js 
 **Veritabanı**  Microsoft SQL Server (MSSQL), T-SQL 
 **Tasarım**  Google Fonts (Cinzel, Crimson Pro), SVG Animations 
