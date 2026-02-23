@@ -2,9 +2,12 @@
 
 Zodya, astroloji bilgilerini modern web teknolojileri ve AI analitiği ile harmanlayan bir astroloji platformudur. Diğer astroloji bloglarından esinlenerek, AI tarafından optimize edilmiş içerik sunan ve uçtan uca geliştirilmiş bir veritabanlı projedir.
 
+##  Canlı Link
+[![Siteyi Gör](https://betulonrr.github.io/burc_blog/)
+
 ##  Özellikler
 
-- **Dinamik Burç Kartları:** 12 burç için element bazlı renk kodlaması, hover efektleri ve detay modallarına yer verildi.
+- **Burç Kartları:** 12 burç için element bazlı renk kodlaması, hover efektleri ve detay modallarına yer verildi.
 - **AI Destekli Günlük Yorumlar:** MSSQL üzerinde kurgulanan mantıkla, haftanın her gününe özel otomatik değişen dinamik içerik sunuldu.
 - **İstatistiksel Veri Görselleştirme:** Aşk, Para ve Sağlık durumları için özel "Metre Bar" grafikleri.
 - **Uyum Hesaplayıcı:** İki burç arasındaki element uyumunu hesaplama.
